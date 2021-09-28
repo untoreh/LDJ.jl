@@ -2,11 +2,14 @@ module LDJFranklin
 
 using Franklin: globvar, locvar, pagevar
 using FranklinUtils
+using LDJ
 using Conda
 using JSON
 using IterTools: chain
 using DataStructures: OrderedDict
 using Base.Unicode: titlecase
+using Memoization
+using Dates: year, now
 
 using HTTP: get
 using URIs: URI
@@ -17,21 +20,21 @@ const BOOKS = []
 export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website, hfun_insert_library,
     hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage
 
-@memoize function hfun_ldj_website(_="")
+@memoize function hfun_ldj_website(k="")
     website(locvar(:website_url), locvar(:author), year(now())) |>
         wrap_ldj
 end
 
-@memoize function hfun_ldj_search(_="")
+@memoize function hfun_ldj_search(k="")
     search(locvar(:website_url);
-           (path="/search", query=(q="{query}",))) |> wrap_ldj
+           parts=(path="/search", query=(q="{query}",))) |> wrap_ldj
 end
 
-@memoize function hfun_ldj_place(_="")
+@memoize function hfun_ldj_place(k="")
     place(;country=locvar(:country), region=locvar(:region))|> wrap_ldj
 end
 
-@memoize function hfun_ldj_author(_=""; wrap=true)
+@memoize function hfun_ldj_author(k=""; wrap=true)
     author(;name=locvar(:author),
            image=locvar(:author_image),
            email=locvar(:email),
@@ -40,12 +43,12 @@ end
                x -> wrap_ldj(x, wrap)
 end
 
-@memoize function hfun_ldj_publisher(_=""; wrap=true)
-    hfun_ldj_author(_; wrap)
+@memoize function hfun_ldj_publisher(k=""; wrap=true)
+    hfun_ldj_author(k; wrap)
 end
 
 @memoize function get_languages()
-    languages((for (lang, _) in locvar(:languages)))
+    languages((lang for (lang, _) in locvar(:languages)))
 end
 
 function hfun_ldj_webpage()

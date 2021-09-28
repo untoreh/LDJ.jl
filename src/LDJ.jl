@@ -9,6 +9,10 @@ using Dates: Date, now, year, DateTime
 const DATE_FORMAT = "mm/dd/yyyy"
 const EMPTY_DATE = Date("0001-01-01")
 
+export wrap_ldj, website, search, place, author, publisher, languages, webpage, translation, breadcrumbs, Book, book,
+    bookfeed, event_status, online_event, license, orgschema, coverage, place_schema, dataset, faqschema, image,
+    howtoitem, howto, logo, ratingprop, movie, itemslist, review, searchaction, speakable, pubevents, video
+
 macro unimp(fname)
     quote
         function $(esc(fname))()
@@ -131,7 +135,7 @@ end
 function webpage(;id, title, url, mtime, selector, description, keywords, name="", headline="",
                  image="", entity="Article", status="Published",lang="english", mentions=[],
                  access_mode=["textual", "visual"], access_sufficient=[], access_summary="",
-                 created="", published="", props=[]),
+                 created="", published="", props=[])
 	IdDict(
         "@context" => "https://schema.org",
         "@type" => "https://schema.org/WebPage",
@@ -151,8 +155,8 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
         ),
         "creativeWorkStatus" => status,
         "dateModified" => mtime_raw,
-        "dateCreated" => isempty(created) ? mtime,
-        "datePublished" => isempty(published) ? mtime,
+        "dateCreated" => isempty(created) ? mtime : created,
+        "datePublished" => isempty(published) ? mtime : published,
         "name" => isempty(name) ? title : name,
         "description" => description,
         "keywords" => keywords

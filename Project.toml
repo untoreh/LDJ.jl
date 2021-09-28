@@ -1,5 +1,4 @@
-[deps]
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-Memoization = "6fafb56a-5788-4b4e-91ca-c0cea6611c73"
-URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+name = "LDJ"
+uuid = "d31b9dc2-a037-4e1a-9a29-34f8080d388f"
+authors = ["untoreh <francesco.giannelli@yahoo.it>"]
+version = "0.1.0"
