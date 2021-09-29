@@ -10,6 +10,7 @@ using DataStructures: OrderedDict
 using Base.Unicode: titlecase
 using Memoization
 using Dates: year, now
+using URIs: URI
 
 using HTTP: get
 using URIs: URI
@@ -17,17 +18,18 @@ import Base.convert
 
 const BOOKS = []
 
-export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website, hfun_insert_library,
-    hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage
+export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website,
+    hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library
 
 @memoize function hfun_ldj_website(k="")
-    website(locvar(:website_url), locvar(:author), year(now())) |>
-        wrap_ldj
+    website(locvar(:website_url),
+            locvar(:author), year(now())) |>
+                wrap_ldj
 end
 
 @memoize function hfun_ldj_search(k="")
     search(locvar(:website_url);
-           parts=(path="/search", query=(q="{query}",))) |> wrap_ldj
+           parts=(path="/search", query=(q="{input}",))) |> wrap_ldj
 end
 
 @memoize function hfun_ldj_place(k="")
@@ -36,9 +38,9 @@ end
 
 @memoize function hfun_ldj_author(k=""; wrap=true)
     author(;name=locvar(:author),
-           image=locvar(:author_image),
            email=locvar(:email),
-           description=isdefined( @__MODULE__, :author_bio) ? author_bio() : "",
+           image=locvar(:author_image),
+           description=(isdefined( @__MODULE__, :author_bio) ? author_bio() : ""),
            sameAs=[locvar(:github), locvar(:twitter)]) |>
                x -> wrap_ldj(x, wrap)
 end
@@ -62,13 +64,15 @@ function hfun_ldj_webpage()
             access_mode=locvar(:accessMode),
             access_sufficient=locvar(:accessModeSufficient),
             access_summary="Visual elements are tentatively described.",
-            audience="cool people",
-            mentions=locvar(:mentions),
             image=locvar(:images),
             lang=globvar(:lang),
+            created=locvar(:fd_ctime),
             props=["availableLanguage" => get_languages(),
                    "author" => hfun_ldj_author(;wrap=false),
-                   "publisher" => hfun_ldj_publisher(;wrap=false)]) |> wrap_ldj
+                   "publisher" => hfun_ldj_publisher(;wrap=false),
+                   "audience" => "cool people",
+                   "mentions" => locvar(:mentions)]
+                    ) |> wrap_ldj
 end
 
 
@@ -82,12 +86,13 @@ function ldj_trans(file_path, src_url, trg_url, lang)
                 keywords=pagevar(file_path, :tags),
                 mentions=pagevar(file_path, :mentions),
                 image=pagevar(file_path, :images),
-                headline=pagevar(file_path, :title))
+                headline=pagevar(file_path, :title)) |> wrap_ldj
 end
 
-@doc "create breadcrumbs for posts"
-function hfun_ldj_crumbs()
-    post_crumbs() |> breadcrumbs
+@doc "create breadcrumbs schema for posts, requires a function to generate breadcrumbs"
+function hfun_ldj_crumbs(args)
+    func = getfield(Main, Symbol(args[1]))
+    func() |> breadcrumbs |> wrap_ldj
 end
 
 @doc "create a book structure"

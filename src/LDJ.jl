@@ -5,6 +5,7 @@ module LDJ
 
 using JSON
 using Dates: Date, now, year, DateTime
+using URIs: URI
 
 const DATE_FORMAT = "mm/dd/yyyy"
 const EMPTY_DATE = Date("0001-01-01")
@@ -35,24 +36,14 @@ macro setprops!()
     end
 end
 
-macro Name(arg)
-    x = string(arg)
-    quote
-	    Symbol($x)
-    end
-end
-
-macro setargs!(args...)
-    quote
-        data = $(esc(:data))
-        for (k, v) in $(esc(args))
-            if !isempty(v)
-                data[k] = v
-            end
+function setargs!(data, args...)
+    for (k, v) in args
+        if !isempty(v)
+            data[k] = v
         end
     end
+    data
 end
-
 
 ## LD+JSON functions
 @inline function schema()
@@ -113,13 +104,13 @@ end
 
 @doc "Convenience function for authors.
 Requires at least `name` and `email`."
-function author(entity="Person"; name, email="", desc="", image="", sameAs="")
-    IdDict(
+function author(entity="Person"; name, email="", description="", image="", sameAs="")
+    data = IdDict{String, Any}(
         "@type" => "https://schema.org/$(entity)",
         "name" => name,
-        "email" => email,
+        "email" => email
     )
-    @setargs! ("image" => image, "description" => desc, "sameAs" => sameAs)
+    setargs!(data, "image" => image, "description" => description, "sameAs" => sameAs)
 end
 
 @doc "Currently same as `author`"
@@ -136,7 +127,7 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
                  image="", entity="Article", status="Published",lang="english", mentions=[],
                  access_mode=["textual", "visual"], access_sufficient=[], access_summary="",
                  created="", published="", props=[])
-	IdDict(
+	data = IdDict(
         "@context" => "https://schema.org",
         "@type" => "https://schema.org/WebPage",
         "@id" => id,
@@ -154,18 +145,18 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
             "itemListElement" => isempty(access_sufficient) ? access_mode : access_sufficient,
         ),
         "creativeWorkStatus" => status,
-        "dateModified" => mtime_raw,
+        "dateModified" => Date(mtime),
         "dateCreated" => isempty(created) ? mtime : created,
         "datePublished" => isempty(published) ? mtime : published,
         "name" => isempty(name) ? title : name,
         "description" => description,
         "keywords" => keywords
     )
-    setargs!("inLanguage" => lang, "accessibilitySummary" => access_summary,
-             "audience" => audience, "headline" => headline, "image" => image,
-             "mentions" => mention
-             )
-    @setprops!
+    # setargs!("inLanguage" => lang, "accessibilitySummary" => access_summary,
+    #          "audience" => audience, "headline" => headline, "image" => image,
+    #          "mentions" => mention
+    #          )
+    # @setprops!
 end
 
 @doc "file path must be relative to the project directory, assumes the published website is under '__site/'"
