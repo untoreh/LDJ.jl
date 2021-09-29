@@ -19,24 +19,24 @@ import Base.convert
 const BOOKS = []
 
 export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website,
-    hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library
+    hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library, ldj_trans
 
-@memoize function hfun_ldj_website(k="")
+function hfun_ldj_website(k="")
     website(locvar(:website_url),
             locvar(:author), year(now())) |>
                 wrap_ldj
 end
 
-@memoize function hfun_ldj_search(k="")
+function hfun_ldj_search(k="")
     search(locvar(:website_url);
            parts=(path="/search", query=(q="{input}",))) |> wrap_ldj
 end
 
-@memoize function hfun_ldj_place(k="")
+function hfun_ldj_place(k="")
     place(;country=locvar(:country), region=locvar(:region))|> wrap_ldj
 end
 
-@memoize function hfun_ldj_author(k=""; wrap=true)
+function hfun_ldj_author(k=""; wrap=true)
     author(;name=locvar(:author),
            email=locvar(:email),
            image=locvar(:author_image),
@@ -45,7 +45,7 @@ end
                x -> wrap_ldj(x, wrap)
 end
 
-@memoize function hfun_ldj_publisher(k=""; wrap=true)
+function hfun_ldj_publisher(k=""; wrap=true)
     hfun_ldj_author(k; wrap)
 end
 
@@ -84,9 +84,11 @@ function ldj_trans(file_path, src_url, trg_url, lang)
                 selector=".franklin-content",
                 description=pagevar(file_path, :rss_description),
                 keywords=pagevar(file_path, :tags),
-                mentions=pagevar(file_path, :mentions),
                 image=pagevar(file_path, :images),
-                headline=pagevar(file_path, :title)) |> wrap_ldj
+                headline=pagevar(file_path, :title),
+                translator_name=globvar(:translator_name),
+                translator_url=globvar(:translator_url),
+                props=["mentions" => locvar(:mentions)]) |> wrap_ldj
 end
 
 @doc "create breadcrumbs schema for posts, requires a function to generate breadcrumbs"
