@@ -11,3 +11,8 @@ using LDJ
 author(;name="Puffy", email="contact@example.com") |> wrap_ldj
 ```
 
+## Franklin
+There are functions to add schema markup under the `LDJFranklin` module that work with franklin global or page variables.
+
+## Calibre
+It is possible to generate a list of books as a _library_ entity from a calibre content server. (Although this is not exactly what google has in mind for libraries :) )
