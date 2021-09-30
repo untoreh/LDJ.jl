@@ -38,7 +38,7 @@ end
 
 function setargs!(data, args...)
     for (k, v) in args
-        if !isempty(v)
+        if !isnothing(v) && !isempty(v)
             data[k] = v
         end
     end
@@ -51,7 +51,8 @@ end
 end
 
 @inline function wrap_ldj(data::IdDict, wrap=true)
-    "<script type=\"application/ld+json\">$(JSON.json(data))</script>"
+    wrap && return "<script type=\"application/ld+json\">$(JSON.json(data))</script>"
+    data
 end
 
 @doc "https://schema.org/WebSite"
@@ -123,16 +124,28 @@ function languages(langs)
     [IdDict("@type" => "Language", "name" => l) for l in langs]
 end
 
+@doc "convert VAL to TO if equal to WHAT, otherwise return VAL."
+@inline function coerce(val; what=nothing, to="")
+    val === what && return to
+    val
+end
+@doc "convert VAL to TO if FN returns true, otherwise return VAL."
+@inline function coercf(val; fn=isempty, to="")
+    fn(val) && return to
+    val
+end
+
 function webpage(;id, title, url, mtime, selector, description, keywords, name="", headline="",
                  image="", entity="Article", status="Published",lang="english", mentions=[],
                  access_mode=["textual", "visual"], access_sufficient=[], access_summary="",
                  created="", published="", props=[])
+    d_mtime = coerce(mtime)
 	data = IdDict(
         "@context" => "https://schema.org",
         "@type" => "https://schema.org/WebPage",
         "@id" => id,
         "url" => url,
-        "lastReviewed" => mtime,
+        "lastReviewed" => coerce(mtime),
         "mainEntityOfPage" => IdDict(
             "@type" => entity,
             "@id" => url
@@ -142,29 +155,28 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
         "accessMode" => access_mode,
         "accessModeSufficient" => IdDict(
             "@type" => "itemList",
-            "itemListElement" => isempty(access_sufficient) ? access_mode : access_sufficient,
+            "itemListElement" => coercf(access_sufficient; to=access_mode),
         ),
         "creativeWorkStatus" => status,
-        "dateModified" => Date(mtime),
-        "dateCreated" => isempty(created) ? mtime : created,
-        "datePublished" => isempty(published) ? mtime : published,
-        "name" => isempty(name) ? title : name,
-        "description" => description,
-        "keywords" => keywords
+        "dateModified" => d_mtime,
+        "dateCreated" => coerce(created; to=d_mtime),
+        "datePublished" => coerce(published; to=d_mtime),
+        "name" => coerce(name; to=title),
+        "description" => coerce(description),
+        "keywords" => coerce(keywords; to=[])
     )
-    # setargs!("inLanguage" => lang, "accessibilitySummary" => access_summary,
-    #          "audience" => audience, "headline" => headline, "image" => image,
-    #          "mentions" => mention
-    #          )
-    # @setprops!
+    setargs!(data, "inLanguage" => lang, "accessibilitySummary" => access_summary,
+             "headline" => headline, "image" => image,
+             "mentions" => mentions)
+    @setprops!
 end
 
 @doc "file path must be relative to the project directory, assumes the published website is under '__site/'"
-function translation(;src_url, trg_url, lang, title, mtime, selector, description, keywords, mentions="",
-                     translator_name="Google", translator_url="https://translate.google.com/")
+function translation(;src_url, trg_url, lang, title, mtime, selector, description, keywords, mentions=[],
+                     image="", headline="", translator_name="Google", translator_url="https://translate.google.com/")
 
     data = webpage(;id=trg_url, title, url=trg_url, mtime, selector, description,
-                   keywords, mentions, lang)
+                   keywords, mentions, image, headline, lang)
     data["translator" ] = IdDict("@type" => "https://schema.org/Organization",
                                "name" => translator_name,
                                "url" => translator_url)

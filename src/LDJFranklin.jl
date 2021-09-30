@@ -21,6 +21,7 @@ const BOOKS = []
 export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website,
     hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library, ldj_trans
 
+
 function hfun_ldj_website(k="")
     website(locvar(:website_url),
             locvar(:author), year(now())) |>
@@ -75,12 +76,15 @@ function hfun_ldj_webpage()
                     ) |> wrap_ldj
 end
 
+@inline function nostring(str::Union{Nothing, AbstractString})
+	isnothing(str) ? "" : str
+end
 
 @doc "file path must be relative to the project directory, assumes the published website is under '__site/'"
 function ldj_trans(file_path, src_url, trg_url, lang)
     translation(;src_url, trg_url, lang,
-                title=pagevar(file_path, :title),
-                mtime=pagevar(file_path, :fd_mtime_raw),
+                title=nostring(pagevar(file_path, :title)),
+                mtime=nostring(pagevar(file_path, :fd_mtime_raw)),
                 selector=".franklin-content",
                 description=pagevar(file_path, :rss_description),
                 keywords=pagevar(file_path, :tags),
