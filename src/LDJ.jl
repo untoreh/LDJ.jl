@@ -172,11 +172,12 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
 end
 
 @doc "file path must be relative to the project directory, assumes the published website is under '__site/'"
-function translation(;src_url, trg_url, lang, title, mtime, selector, description, keywords, mentions=[],
-                     image="", headline="", translator_name="Google", translator_url="https://translate.google.com/")
+function translation(;src_url, trg_url, lang, title, mtime, selector, description, keywords,
+                     image="", headline="", props=[],
+                     translator_name="Google", translator_url="https://translate.google.com/")
 
     data = webpage(;id=trg_url, title, url=trg_url, mtime, selector, description,
-                   keywords, mentions, image, headline, lang)
+                   keywords, image, headline, lang, props)
     data["translator" ] = IdDict("@type" => "https://schema.org/Organization",
                                "name" => translator_name,
                                "url" => translator_url)
