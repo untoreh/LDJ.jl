@@ -3,7 +3,6 @@ module LDJFranklin
 using Franklin: globvar, locvar, pagevar
 using FranklinUtils
 using LDJ
-using Conda
 using JSON
 using IterTools: chain
 using DataStructures: OrderedDict
