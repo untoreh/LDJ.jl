@@ -584,6 +584,9 @@ end
 
 @unimp subscription
 
-include("LDJFranklin.jl")
+function ldjfranklin()
+    include(joinpath(dirname(@__FILE__), "LDJFranklin.jl"))
+    @eval export LDJFranklin
+end
 
 end

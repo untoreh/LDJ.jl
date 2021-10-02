@@ -4,10 +4,12 @@ authors = ["untoreh <francesco.giannelli@yahoo.it>"]
 version = "0.1.0"
 
 [deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Franklin = "713c75ef-9fc9-4b05-94a9-213340da978e"
 FranklinUtils = "dcd8a645-c81d-482f-af4b-568f72f3e16d"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Memoization = "6fafb56a-5788-4b4e-91ca-c0cea6611c73"
 URIs = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"

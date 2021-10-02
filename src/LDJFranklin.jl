@@ -1,5 +1,6 @@
 module LDJFranklin
 
+import Franklin
 using Franklin: globvar, locvar, pagevar
 using FranklinUtils
 using LDJ
@@ -17,8 +18,8 @@ import Base.convert
 
 const BOOKS = []
 
-export hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_place, hfun_ldj_search, hfun_ldj_website,
-    hfun_ldj_book, hfun_ldj_crumbs, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library, ldj_trans
+export ldj_trans, ldjfranklin_hfuncs, hfun_ldj_website, hfun_ldj_book, hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_crumbs,
+    hfun_ldj_place, hfun_ldj_search, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library
 
 
 function hfun_ldj_website(k="")
