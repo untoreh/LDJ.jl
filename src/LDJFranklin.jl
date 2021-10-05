@@ -50,7 +50,7 @@ function hfun_ldj_publisher(k=""; wrap=true)
     hfun_ldj_author(k; wrap)
 end
 
-@memoize function get_languages()
+@memoize function ldj_get_languages()
     languages((lang for (lang, _) in locvar(:languages)))
 end
 
@@ -68,7 +68,7 @@ function hfun_ldj_webpage()
             image=locvar(:images),
             lang=globvar(:lang),
             created=locvar(:fd_ctime),
-            props=["availableLanguage" => get_languages(),
+            props=["availableLanguage" => ldj_get_languages(),
                    "author" => hfun_ldj_author(;wrap=false),
                    "publisher" => hfun_ldj_publisher(;wrap=false),
                    "audience" => "cool people",
