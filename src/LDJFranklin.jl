@@ -21,10 +21,18 @@ const BOOKS = []
 export ldj_trans, ldjfranklin_hfuncs, hfun_ldj_website, hfun_ldj_book, hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_crumbs,
     hfun_ldj_place, hfun_ldj_search, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library
 
-
+@memoize function ldj_publisher()
+    orgschema(;name=globvar(:website_title),
+              url=globvar(:website_url),
+              logo=globvar(:logo; default=globvar(:author_image)),
+              contact="info",
+              email=globvar(:email),
+              sameas=[globvar(:github), globvar(:twitter)])
+end
 function hfun_ldj_website(k="")
-    website(locvar(:website_url),
-            locvar(:author), year(now())) |>
+    website(globvar(:website_url),
+            locvar(:author), year(now());
+            image=globvar(:author_image)) |>
                 wrap_ldj
 end
 
@@ -65,13 +73,13 @@ function hfun_ldj_webpage()
             access_mode=locvar(:accessMode),
             access_sufficient=locvar(:accessModeSufficient),
             access_summary="Visual elements are tentatively described.",
-            image=locvar(:images),
+            image=locvar(:images; default=globvar(:author_image)),
             lang=globvar(:lang),
             created=locvar(:fd_ctime),
             props=["availableLanguage" => ldj_get_languages(),
                    "author" => hfun_ldj_author(;wrap=false),
-                   "publisher" => hfun_ldj_publisher(;wrap=false),
                    "audience" => "cool people",
+                   "publisher" => ldj_publisher(),
                    "mentions" => locvar(:mentions)]
                     ) |> wrap_ldj
 end

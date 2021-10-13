@@ -56,12 +56,13 @@ end
 end
 
 @doc "https://schema.org/WebSite"
-function website(url, author, year)
+function website(url, author, year; image="")
     IdDict(
         "@context" => "https://schema.org/",
         "@type" => "WebSite",
         "@id" => url,
         "url" => url,
+        "image" => image,
         "copyrightHolder" => author,
         "copyrightYear" => year,
     )
@@ -114,7 +115,7 @@ function author(entity="Person"; name, email="", description="", image="", sameA
     setargs!(data, "image" => image, "description" => description, "sameAs" => sameAs)
 end
 
-@doc "Currently same as `author`"
+@doc "Currently same as `author`. NOTE: a publisher should not be a person."
 function publisher(args...; kwargs...)
 	author(args; kwargs...)
 end
@@ -135,11 +136,21 @@ end
     val
 end
 
+function ensure_time(modified, created, default=string(now()))
+    if isempty(modified)
+        isempty(created) && return default
+        return created
+    end
+    modified
+end
+
 function webpage(;id, title, url, mtime, selector, description, keywords, name="", headline="",
                  image="", entity="Article", status="Published",lang="english", mentions=[],
                  access_mode=["textual", "visual"], access_sufficient=[], access_summary="",
                  created="", published="", props=[])
     d_mtime = coerce(mtime)
+    s_created = string(created)
+    description = coercf(description; to=title)
 	data = IdDict(
         "@context" => "https://schema.org",
         "@type" => "https://schema.org/WebPage",
@@ -158,15 +169,16 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
             "itemListElement" => coercf(access_sufficient; to=access_mode),
         ),
         "creativeWorkStatus" => status,
+        # NOTE: datePublished should always be provided
+        "datePublished" => ensure_time(string(d_mtime), s_created),
         "dateModified" => d_mtime,
-        "dateCreated" => coerce(created; to=d_mtime),
-        "datePublished" => coerce(published; to=d_mtime),
+        "dateCreated" => coerce(s_created; to=d_mtime),
         "name" => coerce(name; to=title),
         "description" => coerce(description),
         "keywords" => coerce(keywords; to=[])
     )
     setargs!(data, "inLanguage" => lang, "accessibilitySummary" => access_summary,
-             "headline" => headline, "image" => image,
+             "headline" => coercf(headline; to=description), "image" => image,
              "mentions" => mentions)
     @setprops!
 end
@@ -295,11 +307,12 @@ function license(name="")
     end
 end
 
-function orgschema(name, url, contact="", tel="", email="", sameas="")
+function orgschema(;name, url, contact="", tel="", email="", sameas="", logo="")
     IdDict(
         "@type" => "Organization",
         "name" => name,
         "url" => url,
+        "logo" => logo,
         "sameAs" => sameas,
         "contactPoint" => IdDict(
             "@type" => "ContactPoint",
@@ -499,7 +512,7 @@ function review(;name, rating="", author="", review="", org=[],
             "name" => author
         ),
         "reviewBody" => review,
-        "publisher" => orgschema(org...)
+        "publisher" => orgschema(;org...)
     )
     @setprops!
 end
