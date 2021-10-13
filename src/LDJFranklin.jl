@@ -19,7 +19,7 @@ import Base.convert
 const BOOKS = []
 
 export ldj_trans, ldjfranklin_hfuncs, hfun_ldj_website, hfun_ldj_book, hfun_ldj_author, hfun_ldj_publisher, hfun_ldj_crumbs,
-    hfun_ldj_place, hfun_ldj_search, hfun_ldj_webpage, hfun_ldj_library, hfun_insert_library
+    hfun_ldj_place, hfun_ldj_search, hfun_ldj_webpage, hfun_ldj_webpage_tag, hfun_ldj_library, hfun_insert_library
 
 @memoize function ldj_publisher()
     orgschema(;name=globvar(:website_title),
@@ -70,6 +70,32 @@ function hfun_ldj_webpage()
             selector= ".franklin-content",
             description=locvar(:rss_description),
             keywords=locvar(:tags),
+            access_mode=locvar(:accessMode),
+            access_sufficient=locvar(:accessModeSufficient),
+            access_summary="Visual elements are tentatively described.",
+            image=locvar(:images; default=globvar(:author_image)),
+            lang=globvar(:lang),
+            created=locvar(:fd_ctime),
+            props=["availableLanguage" => ldj_get_languages(),
+                   "author" => hfun_ldj_author(;wrap=false),
+                   "audience" => "cool people",
+                   "publisher" => ldj_publisher(),
+                   "mentions" => locvar(:mentions)]
+                    ) |> wrap_ldj
+end
+
+function hfun_ldj_webpage_tag()
+    tag = locvar(:fd_tag; default="")
+    tag_path = joinpath(globvar(:tag_page_path), tag)
+    name = splitext(tag_path)[1]
+    url = joinpath(globvar(:website_url), replace(name, r"(index|404)$" => ""))
+    webpage(id=url,
+            title=locvar(:title),
+            url=url,
+            mtime=locvar(:fd_mtime_raw),
+            selector= isempty(tag) ? "#tag_cloud" : ".tag-content",
+            description=locvar(:rss_description),
+            keywords=locvar(:fd_tag),
             access_mode=locvar(:accessMode),
             access_sufficient=locvar(:accessModeSufficient),
             access_summary="Visual elements are tentatively described.",
