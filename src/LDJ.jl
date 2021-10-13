@@ -150,7 +150,7 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
                  created="", published="", props=[])
     d_mtime = coerce(mtime)
     s_created = string(created)
-    description = coercf(description; to=title)
+    description = coerce(description; to=title)
 	data = IdDict(
         "@context" => "https://schema.org",
         "@type" => "https://schema.org/WebPage",
@@ -178,7 +178,7 @@ function webpage(;id, title, url, mtime, selector, description, keywords, name="
         "keywords" => coerce(keywords; to=[])
     )
     setargs!(data, "inLanguage" => lang, "accessibilitySummary" => access_summary,
-             "headline" => coercf(headline; to=description), "image" => image,
+             "headline" => coerce(headline; to=description), "image" => image,
              "mentions" => mentions)
     @setprops!
 end
