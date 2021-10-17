@@ -50,8 +50,8 @@ end
     "@context" => "https://schema.org"
 end
 
-@inline function wrap_ldj(data::IdDict, wrap=true)
-    wrap && return "<script type=\"application/ld+json\">$(JSON.json(data))</script>"
+@inline function wrap_ldj(data::IdDict, wrap=true, id="", class="")
+    wrap && return "<script type=\"application/ld+json\" id=\"$(id)\" class=\"$(class)\">$(JSON.json(data))</script>"
     data
 end
 
