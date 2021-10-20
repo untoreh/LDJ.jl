@@ -2,6 +2,7 @@ module LDJFranklin
 
 import Franklin
 using Franklin: globvar, locvar, pagevar
+using Dates
 using FranklinUtils
 using LDJ
 using JSON
@@ -87,12 +88,13 @@ end
 function hfun_ldj_webpage_tag()
     tag = locvar(:fd_tag; default="")
     tag_path = joinpath(globvar(:tag_page_path), tag)
+    mdate = joinpath(Franklin.path(:site), tag_path, "index.html") |> mtime |>  Dates.unix2datetime
     name = splitext(tag_path)[1]
     url = joinpath(globvar(:website_url), replace(name, r"(index|404)$" => ""))
     webpage(id=url,
             title=locvar(:title),
             url=url,
-            mtime=locvar(:fd_mtime_raw),
+            mtime=mdate,
             selector= isempty(tag) ? "#tag_cloud" : ".tag-content",
             description=locvar(:rss_description),
             keywords=locvar(:fd_tag),
@@ -107,7 +109,7 @@ function hfun_ldj_webpage_tag()
                    "audience" => "cool people",
                    "publisher" => ldj_publisher(),
                    "mentions" => locvar(:mentions)]
-                    ) |> wrap_ldj
+                    ) |> x -> wrap_ldj(x, true, "ldj-webpage")
 end
 
 @inline function nostring(str::Union{Nothing, AbstractString})
@@ -132,7 +134,7 @@ end
 @doc "create breadcrumbs schema for posts, requires a function to generate breadcrumbs"
 function hfun_ldj_crumbs(args)
     func = getfield(Main, Symbol(args[1]))
-    func() |> breadcrumbs |> wrap_ldj
+    func() |> breadcrumbs |> x -> wrap_ldj(x, true, "ldj-breadcrumbs")
 end
 
 @doc "create a book structure"
