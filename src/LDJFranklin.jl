@@ -220,7 +220,7 @@ function hfun_insert_library(groups=[])
             write(c, "<ul class=\"$(group_name)-books\">")
             for book in group_list
                 write(c, "<li class=\"book-entry\">")
-                println(c, book.name, "<div class=\"book-author\"> - ", book.author,"<div>")
+                println(c, book.name, "<div class=\"book-author\"> - ", book.author,"</div>")
                 write(c, "</li>")
             end
             write(c, "</ul>")
