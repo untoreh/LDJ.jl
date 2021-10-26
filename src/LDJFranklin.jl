@@ -82,7 +82,7 @@ function hfun_ldj_webpage()
                    "audience" => "cool people",
                    "publisher" => ldj_publisher(),
                    "mentions" => locvar(:mentions)]
-                    ) |> wrap_ldj
+                    ) |> x -> wrap_ldj(x, true, "ldj-webpage")
 end
 
 function hfun_ldj_webpage_tag()
