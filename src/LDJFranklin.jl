@@ -133,7 +133,7 @@ end
 
 @doc "create breadcrumbs schema for posts, requires a function to generate breadcrumbs"
 function hfun_ldj_crumbs(args)
-    func = getfield(Main, Symbol(args[1]))
+    func = getfield(getfield(Main, Symbol(args[2])), Symbol(args[1]))
     func() |> breadcrumbs |> x -> wrap_ldj(x, true, "ldj-breadcrumbs")
 end
 
@@ -184,7 +184,7 @@ function hfun_ldj_library()
                                                           "num" => 10000))
         for (_, book) in calibre_books
             push!(BOOKS, (name=book["title"], author=book["author_sort"],
-                          url="", tags=book["tags"], sameas=""))
+                          url="", tags=Base.get(book, "tags", []), sameas=""))
         end
         bookfeed(BOOKS) |> wrap_ldj
     else
